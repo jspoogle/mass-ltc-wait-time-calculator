@@ -362,7 +362,10 @@ st.caption("Orange line = fitted linear regression. "
 
 # ====================== FEEDBACK ======================
 st.subheader("💬 Ideas or Suggestions?")
-feedback = st.text_area("Share any feature requests, improvements, or comments here:", placeholder="E.g. 'Add best/worst case dates' or 'Make it look even nicer on mobile'")
+feedback_text = st.text_area(
+    "Share any feature requests, improvements, bugs, or comments here:", 
+    placeholder="E.g. 'Add best/worst case dates' or 'Make it look even nicer on mobile'"
+)
 
 can_feedback = True
 if st.session_state.last_feedback_time is not None:
@@ -372,15 +375,29 @@ if st.session_state.last_feedback_time is not None:
         st.warning(f"Feedback cooldown: {remaining // 60} min {remaining % 60} sec left")
         can_feedback = False
 
-if st.button("Send Feedback") and can_feedback:
-    if feedback.strip():
-        with open(f"{DATA_DIR}feedback.txt", "a") as f:
-            f.write(f"[{dt.now().strftime('%m/%d/%Y %H:%M:%S')}] {feedback}\n")
-        st.success(f"✅ Feedback recorded on {dt.now().strftime('%m/%d/%Y %H:%M')} — thank you!")
+if st.button("Send Feedback", disabled=not can_feedback):
+    if feedback_text.strip():
+        feedback_row = [
+            dt.now().strftime("%m/%d/%Y %H:%M:%S"),   # Timestamp
+            feedback_text.strip(),
+            dt.now().strftime("%m/%d/%Y %H:%M:%S")    # Submitted_At
+        ]
+
+        if GOOGLE_SHEETS_ENABLED:
+            try:
+                # Open the "Feedback" tab
+                feedback_worksheet = sh.worksheet("Feedback")
+                feedback_worksheet.append_row(feedback_row, value_input_option="USER_ENTERED")
+                st.success("✅ Submitted successfully. Awaiting review by admin.")
+            except Exception as e:
+                st.error(f"Feedback upload failed: {e}")
+        else:
+            st.error("Google Sheets connection is not active. Please contact the admin.")
+
         st.session_state.last_feedback_time = time.time()
     else:
         st.warning("Please type something before sending.")
 
 st.caption("")
 st.markdown("---")
-st.caption("Built with ❤️ for the 2A communit-ahy. Left or Right, denounce your party like how George Washington wanted us to! Be PRO-USA! • Feel free to share the link!")
+st.caption("Built with ❤️ for the 2A communit-ahy. No more left or right, lets follow in George Washington's footsteps! Be PRO-USA!")
