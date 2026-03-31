@@ -17,7 +17,7 @@ try:
     gc = gspread.authorize(credentials)
     SHEET_ID = "16po2bcvWIQW8zOzM9GJRNsosezpXUA0H_iF5Ry-d3ek"
     sh = gc.open_by_key(SHEET_ID)
-    worksheet = sh.worksheet("Sheet1")   # Change if your tab has a different name
+    worksheet = sh.worksheet("Contributions")   # Change if your tab has a different name
     GOOGLE_SHEETS_ENABLED = True
 except Exception as e:
     GOOGLE_SHEETS_ENABLED = False
