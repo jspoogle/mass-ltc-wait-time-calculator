@@ -144,30 +144,44 @@ with st.sidebar:
     except FileNotFoundError:
         facts_list = ["Civil War|The right to bear arms shall not be infringed. (2nd Amendment)"]
 
-    # Placeholder for the rotating fact
+    # Initialize session state for manual navigation
+    if "fact_index" not in st.session_state:
+        st.session_state.fact_index = 0
+
+    # Placeholder for the fact box
     fact_box = st.empty()
 
-    # Auto-rotate every 12 seconds
-    import random
-    import time
+    # Display current fact
+    if facts_list:
+        current_fact = facts_list[st.session_state.fact_index]
+        try:
+            war_name, fact_text = current_fact.split('|', 1)
+            fact_box.markdown(f"""
+            <div style="border: 2px solid #4a90e2; border-radius: 10px; padding: 12px 15px; background-color: #1e1e1e; margin-bottom: 10px; text-align: center;">
+                <h4 style="margin: 0 0 8px 0; color: #4a90e2; font-size: 1.1em;">{war_name}</h4>
+                <p style="margin: 0; line-height: 1.5; font-size: 0.95em;">{fact_text}</p>
+            </div>
+            """, unsafe_allow_html=True)
+        except:
+            fact_box.info(current_fact)
 
-    while True:
-        if facts_list:
-            random_fact = random.choice(facts_list)
-            try:
-                war_name, fact_text = random_fact.split('|', 1)
-                # Display in a nice box
-                fact_box.markdown(f"""
-                <div style="border: 2px solid #4a90e2; border-radius: 10px; padding: 15px; background-color: #0e1117; margin-bottom: 15px;">
-                    <h4 style="text-align: center; color: #4a90e2; margin: 0 0 10px 0;">{war_name}</h4>
-                    <p style="margin: 0; line-height: 1.5;">{fact_text}</p>
-                </div>
-                """, unsafe_allow_html=True)
-            except:
-                fact_box.info(random_fact)
-        
-        time.sleep(12)
-        st.rerun()   # This forces the sidebar to refresh with a new fact
+    # Previous / Next buttons
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col1:
+        if st.button("← Previous", use_container_width=True):
+            st.session_state.fact_index = (st.session_state.fact_index - 1) % len(facts_list)
+            st.rerun()
+    with col3:
+        if st.button("Next →", use_container_width=True):
+            st.session_state.fact_index = (st.session_state.fact_index + 1) % len(facts_list)
+            st.rerun()
+
+    # Auto-rotate every 13 seconds
+    import time
+    time.sleep(13)
+    st.session_state.fact_index = (st.session_state.fact_index + 1) % len(facts_list)
+    st.rerun()
+    
     st.markdown("---")
     st.markdown("### ❤️ Support the project")
     st.markdown("[**Donate on Venmo**](https://www.venmo.com/u/helpingmassholes1776)")
