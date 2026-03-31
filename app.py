@@ -132,64 +132,58 @@ BASE_DATE = date(1899, 12, 30)
 ASSETS = "assets/"
 DATA_DIR = "data/"
 
-# Sidebar
 # ====================== SIDEBAR ======================
 with st.sidebar:
     st.header("🖐️ Boston LTC Predictor")
     
-    # Load all facts once
+    # Load facts from file
     try:
         with open("facts.txt", "r", encoding="utf-8") as f:
-            facts_list = [line.strip() for line in f if line.strip() and not line.startswith('#')]
-    except FileNotFoundError:
-        facts_list = ["Civil War|The right to bear arms shall not be infringed. (2nd Amendment)"]
+            facts = [line.strip() for line in f if line.strip() and not line.startswith('#')]
+    except:
+        facts = ["Civil War|The right to bear arms shall not be infringed. (2nd Amendment)"]
 
-    # JavaScript to cycle facts without refreshing the page
-    fact_html = """
-    <div id="fact-box" style="border: 2px solid #4a90e2; border-radius: 10px; padding: 14px 16px; background-color: #1e1e1e; margin-bottom: 12px; text-align: center; min-height: 140px;">
-        <h4 id="war-name" style="margin: 0 0 10px 0; color: #4a90e2; font-size: 1.1em;"></h4>
-        <p id="fact-text" style="margin: 0; line-height: 1.55; font-size: 0.96em;"></p>
+    # JavaScript-powered fact rotator (no page reload)
+    html_code = f"""
+    <div style="border: 2px solid #4a90e2; border-radius: 12px; padding: 16px; background-color: #1e1e1e; margin-bottom: 15px; text-align: center;">
+        <h4 id="war" style="margin: 0 0 12px 0; color: #4a90e2; font-size: 1.15em;"></h4>
+        <p id="fact" style="margin: 0; line-height: 1.6; font-size: 0.97em;"></p>
+    </div>
+
+    <div style="display: flex; justify-content: center; gap: 10px;">
+        <button onclick="prevFact()" style="padding: 8px 16px; font-size: 1em;">← Previous</button>
+        <button onclick="nextFact()" style="padding: 8px 16px; font-size: 1em;">Next →</button>
     </div>
 
     <script>
-        let facts = """ + str(facts_list) + """;
-        let current = 0;
+        let facts = {facts};
+        let index = 0;
 
-        function showFact() {
-            let parts = facts[current].split('|');
-            document.getElementById('war-name').innerText = parts[0];
-            document.getElementById('fact-text').innerText = parts[1];
-        }
+        function showFact() {{
+            let [war, text] = facts[index].split('|');
+            document.getElementById('war').innerText = war;
+            document.getElementById('fact').innerText = text;
+        }}
 
-        function nextFact() {
-            current = (current + 1) % facts.length;
+        function nextFact() {{
+            index = (index + 1) % facts.length;
             showFact();
-        }
+        }}
 
-        function prevFact() {
-            current = (current - 1 + facts.length) % facts.length;
+        function prevFact() {{
+            index = (index - 1 + facts.length) % facts.length;
             showFact();
-        }
+        }}
 
-        // Show first fact on load
+        // Show first fact
         showFact();
 
-        // Auto-rotate every 12 seconds
+        // Auto rotate every 12 seconds
         setInterval(nextFact, 12000);
     </script>
     """
 
-    # Buttons to control the JavaScript
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col1:
-        if st.button("← Previous", use_container_width=True):
-            st.markdown('<script>prevFact();</script>', unsafe_allow_html=True)
-    with col3:
-        if st.button("Next →", use_container_width=True):
-            st.markdown('<script>nextFact();</script>', unsafe_allow_html=True)
-
-    # Render the fact box with JavaScript
-    st.components.v1.html(fact_html, height=200)
+    st.components.v1.html(html_code, height=220)
     
     st.markdown("---")
     st.markdown("### ❤️ Support the project")
