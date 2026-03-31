@@ -137,50 +137,59 @@ DATA_DIR = "data/"
 with st.sidebar:
     st.header("🖐️ Boston LTC Predictor")
     
-    # Load facts from external file
+    # Load all facts once
     try:
         with open("facts.txt", "r", encoding="utf-8") as f:
             facts_list = [line.strip() for line in f if line.strip() and not line.startswith('#')]
     except FileNotFoundError:
         facts_list = ["Civil War|The right to bear arms shall not be infringed. (2nd Amendment)"]
 
-    # Initialize session state for manual navigation
-    if "fact_index" not in st.session_state:
-        st.session_state.fact_index = 0
+    # JavaScript to cycle facts without refreshing the page
+    fact_html = """
+    <div id="fact-box" style="border: 2px solid #4a90e2; border-radius: 10px; padding: 14px 16px; background-color: #1e1e1e; margin-bottom: 12px; text-align: center; min-height: 140px;">
+        <h4 id="war-name" style="margin: 0 0 10px 0; color: #4a90e2; font-size: 1.1em;"></h4>
+        <p id="fact-text" style="margin: 0; line-height: 1.55; font-size: 0.96em;"></p>
+    </div>
 
-    # Placeholder for the fact box
-    fact_box = st.empty()
+    <script>
+        let facts = """ + str(facts_list) + """;
+        let current = 0;
 
-    # Display current fact
-    if facts_list:
-        current_fact = facts_list[st.session_state.fact_index]
-        try:
-            war_name, fact_text = current_fact.split('|', 1)
-            fact_box.markdown(f"""
-            <div style="border: 2px solid #4a90e2; border-radius: 10px; padding: 12px 15px; background-color: #1e1e1e; margin-bottom: 10px; text-align: center;">
-                <h4 style="margin: 0 0 8px 0; color: #4a90e2; font-size: 1.1em;">{war_name}</h4>
-                <p style="margin: 0; line-height: 1.5; font-size: 0.95em;">{fact_text}</p>
-            </div>
-            """, unsafe_allow_html=True)
-        except:
-            fact_box.info(current_fact)
+        function showFact() {
+            let parts = facts[current].split('|');
+            document.getElementById('war-name').innerText = parts[0];
+            document.getElementById('fact-text').innerText = parts[1];
+        }
 
-    # Previous / Next buttons
+        function nextFact() {
+            current = (current + 1) % facts.length;
+            showFact();
+        }
+
+        function prevFact() {
+            current = (current - 1 + facts.length) % facts.length;
+            showFact();
+        }
+
+        // Show first fact on load
+        showFact();
+
+        // Auto-rotate every 12 seconds
+        setInterval(nextFact, 12000);
+    </script>
+    """
+
+    # Buttons to control the JavaScript
     col1, col2, col3 = st.columns([1, 2, 1])
     with col1:
         if st.button("← Previous", use_container_width=True):
-            st.session_state.fact_index = (st.session_state.fact_index - 1) % len(facts_list)
-            st.rerun()
+            st.markdown('<script>prevFact();</script>', unsafe_allow_html=True)
     with col3:
         if st.button("Next →", use_container_width=True):
-            st.session_state.fact_index = (st.session_state.fact_index + 1) % len(facts_list)
-            st.rerun()
+            st.markdown('<script>nextFact();</script>', unsafe_allow_html=True)
 
-    # Auto-rotate every 13 seconds
-    import time
-    time.sleep(13)
-    st.session_state.fact_index = (st.session_state.fact_index + 1) % len(facts_list)
-    st.rerun()
+    # Render the fact box with JavaScript
+    st.components.v1.html(fact_html, height=200)
     
     st.markdown("---")
     st.markdown("### ❤️ Support the project")
