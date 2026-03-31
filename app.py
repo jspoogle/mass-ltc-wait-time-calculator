@@ -6,6 +6,23 @@ import os
 import time
 from datetime import datetime as dt
 
+# ------------------- Google Sheets Setup -------------------
+try:
+    import gspread
+    from google.oauth2.service_account import Credentials
+    SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
+    credentials = Credentials.from_service_account_info(
+        st.secrets["gcp_service_account"], scopes=SCOPES
+    )
+    gc = gspread.authorize(credentials)
+    SHEET_ID = "16po2bcvWIQW8zOzM9GJRNsosezpXUA0H_iF5Ry-d3ek"
+    sh = gc.open_by_key(SHEET_ID)
+    worksheet = sh.worksheet("Sheet1")   # Change if your tab has a different name
+    GOOGLE_SHEETS_ENABLED = True
+except Exception as e:
+    GOOGLE_SHEETS_ENABLED = False
+    st.warning("Google Sheets integration not active (secret not found). Submissions will be saved locally.")
+
 # Rate limit config
 RATE_LIMIT_SECONDS = 600
 
