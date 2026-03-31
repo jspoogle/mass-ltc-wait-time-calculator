@@ -1,0 +1,23 @@
+# Secrets - NEVER commit these
+service_account.json
+secrets.json
+.streamlit/secrets.toml
+.env
+
+# Data files with user submissions
+data/data.xlsx
+data/contributions.csv
+data/feedback.txt
+contributions.csv
+feedback.txt
+
+# Python caches
+__pycache__/
+*.pyc
+*.pyo
+venv/
+env/
+.venv/
+
+# Mac files
+.DS_Store
