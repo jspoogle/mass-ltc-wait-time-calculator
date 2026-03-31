@@ -133,10 +133,41 @@ ASSETS = "assets/"
 DATA_DIR = "data/"
 
 # Sidebar
+# ====================== SIDEBAR ======================
 with st.sidebar:
-    st.header("🖐️ About This Tool")
-    st.write("Built from 25 real historical submissions using linear regression.")
-    st.write("Slope ≈ 1.10 (wait times slowly increasing)")
+    st.header("🖐️ Boston LTC Predictor")
+    
+    # Load facts from external file
+    try:
+        with open("facts.txt", "r", encoding="utf-8") as f:
+            facts_list = [line.strip() for line in f if line.strip() and not line.startswith('#')]
+    except FileNotFoundError:
+        facts_list = ["Civil War|The right to bear arms shall not be infringed. (2nd Amendment)"]
+
+    # Placeholder for the rotating fact
+    fact_box = st.empty()
+
+    # Auto-rotate every 12 seconds
+    import random
+    import time
+
+    while True:
+        if facts_list:
+            random_fact = random.choice(facts_list)
+            try:
+                war_name, fact_text = random_fact.split('|', 1)
+                # Display in a nice box
+                fact_box.markdown(f"""
+                <div style="border: 2px solid #4a90e2; border-radius: 10px; padding: 15px; background-color: #0e1117; margin-bottom: 15px;">
+                    <h4 style="text-align: center; color: #4a90e2; margin: 0 0 10px 0;">{war_name}</h4>
+                    <p style="margin: 0; line-height: 1.5;">{fact_text}</p>
+                </div>
+                """, unsafe_allow_html=True)
+            except:
+                fact_box.info(random_fact)
+        
+        time.sleep(12)
+        st.rerun()   # This forces the sidebar to refresh with a new fact
     st.markdown("---")
     st.markdown("### ❤️ Support the project")
     st.markdown("[**Donate on Venmo**](https://www.venmo.com/u/helpingmassholes1776)")
