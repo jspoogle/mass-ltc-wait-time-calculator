@@ -143,7 +143,7 @@ with st.sidebar:
     except FileNotFoundError:
         facts_list = ["Civil War|The right to bear arms shall not be infringed. (2nd Amendment)"]
 
-    # JavaScript + CSS powered fact rotator (no page reload ever)
+    # JavaScript-powered random fact rotator
     html_code = f"""
     <style>
         .fact-box {{
@@ -182,6 +182,17 @@ with st.sidebar:
 
     <script>
         let facts = {facts_list};
+        
+        // Shuffle the facts array once on load for randomization
+        function shuffle(array) {{
+            for (let i = array.length - 1; i > 0; i--) {{
+                let j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }}
+            return array;
+        }}
+        
+        facts = shuffle(facts);
         let currentIndex = 0;
 
         function showFact() {{
@@ -200,7 +211,7 @@ with st.sidebar:
             showFact();
         }}
 
-        // Show first fact
+        // Show first (randomized) fact
         showFact();
 
         // Auto-rotate every 12 seconds
