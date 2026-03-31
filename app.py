@@ -257,9 +257,16 @@ with main_col:
                 st.error("Please fill required fields.")
             else:
                 licence_value = user_licence_date if not no_licence_yet else None
+                
+                # Convert dates to strings (this fixes the JSON error)
                 row = [
-                    user_city, user_sub, user_fp, licence_value,
-                    dt.now().strftime("%m/%d/%Y %H:%M:%S"), "unknown", no_licence_yet
+                    user_city,
+                    str(user_sub),           # "2025-08-12"
+                    str(user_fp),            # "2026-03-23"
+                    str(licence_value) if licence_value else None,
+                    dt.now().strftime("%m/%d/%Y %H:%M:%S"),
+                    "unknown",               # Approx_IP
+                    no_licence_yet
                 ]
 
                 if GOOGLE_SHEETS_ENABLED:
@@ -269,8 +276,13 @@ with main_col:
                     except Exception as e:
                         st.error(f"Upload failed: {e}")
                 else:
-                    pd.DataFrame([row]).to_csv(f"{DATA_DIR}contributions.csv", mode="a", 
-                                              header=not os.path.exists(f"{DATA_DIR}contributions.csv"), index=False)
+                    # Fallback CSV
+                    pd.DataFrame([row]).to_csv(
+                        f"{DATA_DIR}contributions.csv", 
+                        mode="a", 
+                        header=not os.path.exists(f"{DATA_DIR}contributions.csv"), 
+                        index=False
+                    )
                     st.success("✅ Saved locally (Google Sheets not connected).")
 
                 st.session_state.last_contrib_time = time.time()
