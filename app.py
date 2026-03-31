@@ -139,51 +139,76 @@ with st.sidebar:
     # Load facts from file
     try:
         with open("facts.txt", "r", encoding="utf-8") as f:
-            facts = [line.strip() for line in f if line.strip() and not line.startswith('#')]
-    except:
-        facts = ["Civil War|The right to bear arms shall not be infringed. (2nd Amendment)"]
+            facts_list = [line.strip() for line in f if line.strip() and not line.startswith('#')]
+    except FileNotFoundError:
+        facts_list = ["Civil War|The right to bear arms shall not be infringed. (2nd Amendment)"]
 
-    # JavaScript-powered fact rotator (no page reload)
+    # JavaScript + CSS powered fact rotator (no page reload ever)
     html_code = f"""
-    <div style="border: 2px solid #4a90e2; border-radius: 12px; padding: 16px; background-color: #1e1e1e; margin-bottom: 15px; text-align: center;">
-        <h4 id="war" style="margin: 0 0 12px 0; color: #4a90e2; font-size: 1.15em;"></h4>
-        <p id="fact" style="margin: 0; line-height: 1.6; font-size: 0.97em;"></p>
+    <style>
+        .fact-box {{
+            border: 2px solid #4a90e2;
+            border-radius: 14px;
+            padding: 20px 18px;
+            background-color: #1e1e1e;
+            margin-bottom: 18px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            min-height: 160px;
+        }}
+        .fact-box h4 {{
+            margin: 0 0 14px 0;
+            color: #4a90e2;
+            font-size: 1.18em;
+            font-weight: 600;
+        }}
+        .fact-box p {{
+            margin: 0;
+            line-height: 1.65;
+            font-size: 0.98em;
+            color: #e0e0e0;
+        }}
+    </style>
+
+    <div class="fact-box" id="factBox">
+        <h4 id="warName"></h4>
+        <p id="factText"></p>
     </div>
 
-    <div style="display: flex; justify-content: center; gap: 10px;">
-        <button onclick="prevFact()" style="padding: 8px 16px; font-size: 1em;">← Previous</button>
-        <button onclick="nextFact()" style="padding: 8px 16px; font-size: 1em;">Next →</button>
+    <div style="display: flex; justify-content: center; gap: 12px;">
+        <button onclick="prevFact()" style="padding: 10px 20px; font-size: 1.05em; background: #333; color: white; border: none; border-radius: 8px; cursor: pointer;">← Previous</button>
+        <button onclick="nextFact()" style="padding: 10px 20px; font-size: 1.05em; background: #333; color: white; border: none; border-radius: 8px; cursor: pointer;">Next →</button>
     </div>
 
     <script>
-        let facts = {facts};
-        let index = 0;
+        let facts = {facts_list};
+        let currentIndex = 0;
 
         function showFact() {{
-            let [war, text] = facts[index].split('|');
-            document.getElementById('war').innerText = war;
-            document.getElementById('fact').innerText = text;
+            let [war, text] = facts[currentIndex].split('|');
+            document.getElementById('warName').innerText = war;
+            document.getElementById('factText').innerText = text;
         }}
 
         function nextFact() {{
-            index = (index + 1) % facts.length;
+            currentIndex = (currentIndex + 1) % facts.length;
             showFact();
         }}
 
         function prevFact() {{
-            index = (index - 1 + facts.length) % facts.length;
+            currentIndex = (currentIndex - 1 + facts.length) % facts.length;
             showFact();
         }}
 
         // Show first fact
         showFact();
 
-        // Auto rotate every 12 seconds
+        // Auto-rotate every 12 seconds
         setInterval(nextFact, 12000);
     </script>
     """
 
-    st.components.v1.html(html_code, height=220)
+    st.components.v1.html(html_code, height=260)
     
     st.markdown("---")
     st.markdown("### ❤️ Support the project")
