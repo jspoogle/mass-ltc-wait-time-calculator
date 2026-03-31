@@ -210,12 +210,12 @@ with main_col:
         except Exception:
             return "unknown"
     
-    # ====================== CONTRIBUTE YOUR DATA ======================
+        # ====================== CONTRIBUTE YOUR DATA ======================
     st.subheader("💡 Help Make This More Accurate")
     st.write("Submit your own dates + city to improve the model (and help build calculators for other MA cities). "
              "Limited to 1 submission every 10 minutes to prevent spam.")
 
-    approx_ip = get_approx_ip()
+    approx_ip = "unknown"
 
     can_contrib = True
     if st.session_state.last_contrib_time is not None:
@@ -253,37 +253,30 @@ with main_col:
         submitted = st.form_submit_button("Submit My Data", disabled=not can_contrib)
 
         if submitted and can_contrib:
-            if user_city == "Select your city..." or not user_sub or not user_fp:
-                st.error("Please fill required fields.")
+            if not user_sub or not user_fp or user_city == "Select your city...":
+                st.error("Submission date, Fingerprint call date, and City are required.")
             else:
                 licence_value = user_licence_date if not no_licence_yet else None
                 
-                # Convert dates to strings (this fixes the JSON error)
+                # Convert dates to strings for Google Sheets
                 row = [
                     user_city,
-                    str(user_sub),           # "2025-08-12"
-                    str(user_fp),            # "2026-03-23"
-                    str(licence_value) if licence_value else None,
+                    str(user_sub),
+                    str(user_fp),
+                    str(licence_value) if licence_value else "",
                     dt.now().strftime("%m/%d/%Y %H:%M:%S"),
-                    "unknown",               # Approx_IP
+                    approx_ip,
                     no_licence_yet
                 ]
 
                 if GOOGLE_SHEETS_ENABLED:
                     try:
                         worksheet.append_row(row, value_input_option="USER_ENTERED")
-                        st.success("✅ Successfully added to your private Google Sheet!")
+                        st.success("✅ Submitted successfully. Awaiting review by admin.")
                     except Exception as e:
                         st.error(f"Upload failed: {e}")
                 else:
-                    # Fallback CSV
-                    pd.DataFrame([row]).to_csv(
-                        f"{DATA_DIR}contributions.csv", 
-                        mode="a", 
-                        header=not os.path.exists(f"{DATA_DIR}contributions.csv"), 
-                        index=False
-                    )
-                    st.success("✅ Saved locally (Google Sheets not connected).")
+                    st.error("Google Sheets connection is not active. Please contact the admin.")
 
                 st.session_state.last_contrib_time = time.time()
 
