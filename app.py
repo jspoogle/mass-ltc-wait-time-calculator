@@ -7,6 +7,7 @@ import time
 from datetime import datetime as dt
 
 # ------------------- Google Sheets Setup -------------------
+GOOGLE_SHEETS_ENABLED = False
 try:
     import gspread
     from google.oauth2.service_account import Credentials
@@ -17,12 +18,11 @@ try:
     gc = gspread.authorize(credentials)
     SHEET_ID = "16po2bcvWIQW8zOzM9GJRNsosezpXUA0H_iF5Ry-d3ek"
     sh = gc.open_by_key(SHEET_ID)
-    worksheet = sh.worksheet("Contributions")   # Change if your tab has a different name
+    worksheet = sh.worksheet("Contributions")   # Change only if your tab name is different
     GOOGLE_SHEETS_ENABLED = True
-except Exception as e:
+except Exception:
     GOOGLE_SHEETS_ENABLED = False
-    st.warning("Google Sheets integration not active (secret not found). Submissions will be saved locally.")
-
+    
 # Rate limit config
 RATE_LIMIT_SECONDS = 600
 
@@ -253,31 +253,27 @@ with main_col:
         submitted = st.form_submit_button("Submit My Data", disabled=not can_contrib)
 
         if submitted and can_contrib:
-            if not user_sub or not user_fp:
-                st.error("Submission date and Fingerprint call date are required.")
-            elif user_city == "Select your city...":
-                st.error("Please select your City/Town.")
-            elif not no_licence_yet and not user_licence_date:
-                st.error("Licence in-hand date is required unless 'I have not received this yet' is checked.")
+            if user_city == "Select your city..." or not user_sub or not user_fp:
+                st.error("Please fill required fields.")
             else:
                 licence_value = user_licence_date if not no_licence_yet else None
-                contrib = pd.DataFrame([{
-                    "City_Town": user_city,
-                    "Submission_Date": user_sub,
-                    "Fingerprint_Date": user_fp,
-                    "Licence_In_Hand_Date": licence_value,
-                    "Submitted_At": dt.now().strftime("%m/%d/%Y %H:%M:%S"),
-                    "Approx_IP": approx_ip,
-                    "No_Licence_Yet": no_licence_yet
-                }])
-                file_path = f"{DATA_DIR}contributions.csv"
-                if not os.path.exists(file_path):
-                    contrib.to_csv(file_path, index=False)
+                row = [
+                    user_city, user_sub, user_fp, licence_value,
+                    dt.now().strftime("%m/%d/%Y %H:%M:%S"), "unknown", no_licence_yet
+                ]
+
+                if GOOGLE_SHEETS_ENABLED:
+                    try:
+                        worksheet.append_row(row, value_input_option="USER_ENTERED")
+                        st.success("✅ Successfully added to your private Google Sheet!")
+                    except Exception as e:
+                        st.error(f"Upload failed: {e}")
                 else:
-                    contrib.to_csv(file_path, mode="a", header=False, index=False)
-                st.success(f"✅ Thank you! Your data has been saved for review on {dt.now().strftime('%m/%d/%Y %H:%M')}.")
+                    pd.DataFrame([row]).to_csv(f"{DATA_DIR}contributions.csv", mode="a", 
+                                              header=not os.path.exists(f"{DATA_DIR}contributions.csv"), index=False)
+                    st.success("✅ Saved locally (Google Sheets not connected).")
+
                 st.session_state.last_contrib_time = time.time()
-                st.session_state.last_ip = approx_ip
 
 
 # Hardcoded historical data
