@@ -42,7 +42,7 @@ MA_CITIES = [
     "Berlin", "Bernardston", "Beverly", "Billerica", "Blackstone", "Blandford", "Bolton",
     "Boston", "Bourne", "Boxborough", "Boxford", "Braintree", "Brimfield", "Brockton", "Brookfield",
     "Brookline", "Buckland", "Burlington", "Cambridge", "Canton", "Carlisle", "Carver",
-    "Charlemont", "Charlton", "Chatham", "Chester", "Chesterfield", "Chicopee", "Chilmark",
+    "Charlemont", "Charlton", "Chatham", "Chelsea", "Chester", "Chesterfield", "Chicopee", "Chilmark",
     "Clarksburg", "Clinton", "Cohasset", "Concord", "Conway", "Dalton", "Danvers",
     "Dartmouth", "Dedham", "Deerfield", "Dennis", "Dighton", "Douglas", "Dracut", "Dudley",
     "Dunstable", "Duxbury", "Eastham", "Easthampton", "East Bridgewater", "East Longmeadow",
