@@ -398,7 +398,7 @@ fig = px.scatter(
 fig.update_traces(marker=dict(size=10, color="#1f77b4"), selector=dict(mode='markers'))
 
 # Add green in-hand points and lines for the two known records
-known_indices = [16, 18, 25]
+known_indices = [16, 18]
 known_inhand_serials = [46085, 46091, 46119]
 known_inhand_dates = [date(2026, 3, 4), date(2026, 3, 10), date(2026, 4, 7)]
 
