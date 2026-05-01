@@ -287,11 +287,11 @@ with main_col:
 
             st.divider()  # Clean separation
 
-            st.header("📅 Your Estimated Fingerprint Call Date")
+            # Big centered result
+            st.markdown("<h3 style='text-align: center;'>📅 Your Estimated Fingerprint Call Date</h3>", unsafe_allow_html=True)
             
-            # Big prominent answer
-            st.success(f"**{predicted_central.strftime('%A, %m/%d/%Y')}**")
-            st.markdown(f"**±5 business days**")
+            st.success(f"**{predicted_central.strftime('%A, %m/%d/%Y')}**", icon="📍")
+            st.markdown(f"<p style='text-align: center; font-size: 1.1em;'><strong>±5 business days</strong></p>", unsafe_allow_html=True)
 
             st.info(f"""
                 ≈ **{days_wait_central} calendar days** after submission ({submission_date.strftime('%m/%d/%Y')}).
