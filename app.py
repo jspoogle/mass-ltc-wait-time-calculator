@@ -251,10 +251,6 @@ with right_col:
 with main_col:
     st.title("Boston LTC/FID Licensing Wait Time for Fingerprinting Appointment Calculator")
     
-    # === CLEAR MAIN CALCULATOR BOX ===
-    with main_col:
-    st.title("Boston LTC/FID Licensing Wait Time for Fingerprinting Appointment Calculator")
-    
     # === MAIN CALCULATOR BOX - MORE FOCUSED ===
     with st.container(border=True):
         st.markdown("**Boston-only right now** — wait times vary by city/town.")
