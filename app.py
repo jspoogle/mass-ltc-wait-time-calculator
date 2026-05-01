@@ -240,7 +240,7 @@ with main_col:
             <strong>Boston-only right now</strong> — wait times vary a lot by city/town.<br>
             If you're in Milford, Concord, Worcester, or anywhere else in MA, your estimate may be different.
         </div>
-        """, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
         
         st.markdown("### Enter the date you submitted / paid for your application")
         
