@@ -252,20 +252,26 @@ with main_col:
     st.title("Boston LTC/FID Licensing Wait Time for Fingerprinting Appointment Calculator")
     
     # === CLEAR MAIN CALCULATOR BOX ===
+    with main_col:
+    st.title("Boston LTC/FID Licensing Wait Time for Fingerprinting Appointment Calculator")
+    
+    # === MAIN CALCULATOR BOX - MORE FOCUSED ===
     with st.container(border=True):
-        st.caption("**Boston-only right now** — wait times can vary a lot by city/town. "
-                   "If you're in Milford, Concord, Worcester, or anywhere else in MA, "
-                   "your estimate may be different.")
+        st.markdown("**Boston-only right now** — wait times vary by city/town.")
         
-        col1, col2 = st.columns([3, 1])
-        with col1:
+        # Prominent date input
+        st.markdown("### Enter the date you submitted / paid for your application")
+        col1, col2, col3 = st.columns([1, 3, 1])
+        with col2:
             submission_date = st.date_input(
-                "Enter the date you submitted / paid for your application",
+                label="",  # hidden label since we have markdown above
                 value=date(2025, 6, 20),
                 min_value=date(2024, 1, 1),
-                format="MM/DD/YYYY"
+                format="MM/DD/YYYY",
+                key="main_submission"
             )
         
+        # === BIG RESULT SECTION ===
         if submission_date:
             submission_serial = (submission_date - BASE_DATE).days
             predicted_serial = SLOPE * submission_serial + INTERCEPT
@@ -275,15 +281,26 @@ with main_col:
             upper_date = add_business_days(predicted_central, +5)
             days_wait_central = (predicted_central - submission_date).days
 
-            st.header("📅 Your Estimated Fingerprint Call Date")
-            st.success(f"**{predicted_central.strftime('%A, %m/%d/%Y')}** (±5 business days)")
-            st.info(f"≈ **{days_wait_central} calendar days** after submission ({submission_date.strftime('%m/%d/%Y')}).\n"
-                    f"**Likely range:** {lower_date.strftime('%m/%d/%Y')} to {upper_date.strftime('%m/%d/%Y')}\n"
-                    f"(excluding weekends & federal holidays)")
-            if predicted_central != predicted_raw:
-                st.caption(f"Raw model estimate was {predicted_raw.strftime('%m/%d/%Y')} — adjusted forward to next business day.")
-            st.caption("This is an estimate based on historical trends. Actual times vary due to processing volume, staffing, etc.")
+            st.divider()  # Clean separation
 
+            st.header("📅 Your Estimated Fingerprint Call Date")
+            
+            # Big prominent answer
+            st.success(f"**{predicted_central.strftime('%A, %m/%d/%Y')}**")
+            st.markdown(f"**±5 business days**")
+
+            st.info(f"""
+                ≈ **{days_wait_central} calendar days** after submission ({submission_date.strftime('%m/%d/%Y')}).
+
+                **Likely range:** {lower_date.strftime('%m/%d/%Y')} to {upper_date.strftime('%m/%d/%Y')}
+                (excluding weekends & federal holidays)
+            """)
+
+            if predicted_central != predicted_raw:
+                st.caption(f"Raw model estimate was {predicted_raw.strftime('%m/%d/%Y')} — adjusted to next business day.")
+            
+            st.caption("This is an estimate based on historical trends. Actual times vary due to processing volume, staffing, etc.")
+            
         def get_approx_ip():
             try:
                 if hasattr(st.context, "ip_address"):
