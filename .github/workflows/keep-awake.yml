@@ -2,7 +2,7 @@ name: Keep Mass LTC Calculator Awake
 
 on:
   schedule:
-    - cron: '*/30 * * * *'   # Runs every 30 minutes
+    - cron: '*/30 * * * *'   # Every 30 minutes
 
 jobs:
   keep-awake:
