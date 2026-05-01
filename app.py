@@ -18,11 +18,11 @@ try:
     gc = gspread.authorize(credentials)
     SHEET_ID = "16po2bcvWIQW8zOzM9GJRNsosezpXUA0H_iF5Ry-d3ek"
     sh = gc.open_by_key(SHEET_ID)
-    worksheet = sh.worksheet("Contributions")   # Change only if your tab name is different
+    worksheet = sh.worksheet("Contributions")
     GOOGLE_SHEETS_ENABLED = True
 except Exception:
     GOOGLE_SHEETS_ENABLED = False
-    
+
 # Rate limit config
 RATE_LIMIT_SECONDS = 600
 
@@ -128,21 +128,19 @@ st.set_page_config(
 SLOPE = 1.0996490280303988
 INTERCEPT = -4338.724561548079
 BASE_DATE = date(1899, 12, 30)
-
 ASSETS = "assets/"
-DATA_DIR = "data/"
 
 # ====================== SIDEBAR ======================
 with st.sidebar:
     st.header("🖐️ Boston LTC Predictor")
-    
+   
     # Load facts from file
     try:
         with open("facts.txt", "r", encoding="utf-8") as f:
             facts_list = [line.strip() for line in f if line.strip() and not line.startswith('#')]
     except FileNotFoundError:
         facts_list = ["Civil War|The right to bear arms shall not be infringed. (2nd Amendment)"]
-
+   
     # JavaScript-powered random fact rotator
     html_code = f"""
     <style>
@@ -169,21 +167,16 @@ with st.sidebar:
             color: #e0e0e0;
         }}
     </style>
-
     <div class="fact-box" id="factBox">
         <h4 id="warName"></h4>
         <p id="factText"></p>
     </div>
-
     <div style="display: flex; justify-content: center; gap: 12px;">
         <button onclick="prevFact()" style="padding: 10px 20px; font-size: 1.05em; background: #333; color: white; border: none; border-radius: 8px; cursor: pointer;">← Previous</button>
         <button onclick="nextFact()" style="padding: 10px 20px; font-size: 1.05em; background: #333; color: white; border: none; border-radius: 8px; cursor: pointer;">Next →</button>
     </div>
-
     <script>
         let facts = {facts_list};
-        
-        // Shuffle the facts array once on load for randomization
         function shuffle(array) {{
             for (let i = array.length - 1; i > 0; i--) {{
                 let j = Math.floor(Math.random() * (i + 1));
@@ -191,36 +184,27 @@ with st.sidebar:
             }}
             return array;
         }}
-        
         facts = shuffle(facts);
         let currentIndex = 0;
-
         function showFact() {{
             let [war, text] = facts[currentIndex].split('|');
             document.getElementById('warName').innerText = war;
             document.getElementById('factText').innerText = text;
         }}
-
         function nextFact() {{
             currentIndex = (currentIndex + 1) % facts.length;
             showFact();
         }}
-
         function prevFact() {{
             currentIndex = (currentIndex - 1 + facts.length) % facts.length;
             showFact();
         }}
-
-        // Show first (randomized) fact
         showFact();
-
-        // Auto-rotate every 12 seconds
         setInterval(nextFact, 12000);
     </script>
     """
-
     st.components.v1.html(html_code, height=260)
-    
+   
     st.markdown("---")
     st.markdown("### ❤️ Support the project")
     st.markdown("[**Donate on Venmo**](https://www.venmo.com/u/helpingmassholes1776)")
@@ -232,14 +216,12 @@ st.image(f"{ASSETS}header_george.jpg", width='stretch')
 
 # 3-column layout
 left_col, main_col, right_col = st.columns([1.2, 7, 1.2])
-
 with left_col:
     st.image(f"{ASSETS}border_left1.jpg", width='stretch')
     st.image(f"{ASSETS}border_left2.jpg", width='stretch')
     st.image(f"{ASSETS}border_left3.jpg", width='stretch')
     st.image(f"{ASSETS}border_left4.jpg", width='stretch')
     st.image(f"{ASSETS}border_left5.jpg", width='stretch')
-
 with right_col:
     st.image(f"{ASSETS}border_right1.jpg", width='stretch')
     st.image(f"{ASSETS}border_right2.jpg", width='stretch')
@@ -260,22 +242,19 @@ with main_col:
         </div>
         """, unsafe_allow_html=True)
         
-        st.markdown("""
-        <div style="text-align: center;">
-            ("### Enter the date you submitted / paid for your application")
+        st.markdown("### Enter the date you submitted / paid for your application")
         
         # Centered date input
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
             submission_date = st.date_input(
-                label="", 
+                label="",
                 value=date(2025, 6, 20),
                 min_value=date(2024, 1, 1),
                 format="MM/DD/YYYY",
                 key="main_submission"
             )
         
-        # === BIG RESULT SECTION ===
         if submission_date:
             submission_serial = (submission_date - BASE_DATE).days
             predicted_serial = SLOPE * submission_serial + INTERCEPT
@@ -285,7 +264,7 @@ with main_col:
             upper_date = add_business_days(predicted_central, +5)
             days_wait_central = (predicted_central - submission_date).days
 
-            st.divider()  # Clean separation
+            st.divider()
 
             # Big centered result
             st.markdown("<h3 style='text-align: center;'>📅 Your Estimated Fingerprint Call Date</h3>", unsafe_allow_html=True)
@@ -304,25 +283,9 @@ with main_col:
                 st.caption(f"Raw model estimate was {predicted_raw.strftime('%m/%d/%Y')} — adjusted to next business day.")
             
             st.caption("This is an estimate based on historical trends. Actual times vary due to processing volume, staffing, etc.")
-            
-        def get_approx_ip():
-            try:
-                if hasattr(st.context, "ip_address"):
-                    ip = st.context.ip_address
-                    if ip:
-                        return ip
-                headers = st.context.headers or {}
-                forwarded = headers.get("X-Forwarded-For", "unknown")
-                if forwarded != "unknown":
-                    return forwarded.split(",")[0].strip()
-                return "unknown"
-            except Exception:
-                return "unknown"
-    
-   # ====================== SEPARATOR ======================
+
     st.divider()
 
-    
     # ====================== DATA SUBMISSION SECTION ======================
     st.subheader("💡 Help Make This More Accurate")
     
@@ -332,7 +295,7 @@ with main_col:
         
         st.write("Submit your own dates + city to improve the model (and help build calculators for other MA cities). "
                  "Limited to 1 submission every 10 minutes to prevent spam.")
-    
+
         # Rate limit warning
         approx_ip = "unknown"
         can_contrib = True
@@ -342,15 +305,15 @@ with main_col:
                 remaining = int(RATE_LIMIT_SECONDS - time_since)
                 st.warning(f"Contribution cooldown: {remaining // 60} min {remaining % 60} sec left")
                 can_contrib = False
-    
+
         with st.form("contribute_form"):
             col1, col2 = st.columns(2)
             with col1:
                 user_sub = st.date_input("Your Submission / Paid Date *", key="user_sub", format="MM/DD/YYYY")
             with col2:
                 user_fp = st.date_input(
-                    "Your Actual Fingerprint Call Date *", 
-                    key="user_fp", 
+                    "Your Actual Fingerprint Call Date *",
+                    key="user_fp",
                     format="MM/DD/YYYY",
                     help="Only submit this after you have actually been called/scheduled for fingerprinting."
                 )
@@ -380,8 +343,6 @@ with main_col:
                     st.error("Submission date, Fingerprint call date, and City are required.")
                 else:
                     licence_value = user_licence_date if not no_licence_yet else None
-                    
-                    # Convert dates to strings for Google Sheets
                     row = [
                         user_city,
                         str(user_sub),
@@ -391,7 +352,6 @@ with main_col:
                         approx_ip,
                         no_licence_yet
                     ]
-    
                     if GOOGLE_SHEETS_ENABLED:
                         try:
                             worksheet.append_row(row, value_input_option="USER_ENTERED")
@@ -400,9 +360,7 @@ with main_col:
                             st.error(f"Upload failed: {e}")
                     else:
                         st.error("Google Sheets connection is not active. Please contact the admin.")
-    
                     st.session_state.last_contrib_time = time.time()
-
 
 # Hardcoded historical data
 sub_serials = [45676, 45690, 45698, 45707, 45709, 45712, 45712, 45712, 45712, 45716,
@@ -418,7 +376,6 @@ chart_df = pd.DataFrame({
     "Submission_Date": [BASE_DATE + timedelta(days=s) for s in sub_serials],
     "Fingerprint_Date": [BASE_DATE + timedelta(days=f) for f in fp_serials]
 })
-
 chart_df["Submission_Date"] = pd.to_datetime(chart_df["Submission_Date"])
 chart_df["Fingerprint_Date"] = pd.to_datetime(chart_df["Fingerprint_Date"])
 
@@ -433,19 +390,16 @@ fig = px.scatter(
     trendline="ols",
     trendline_color_override="#ff7f0e"
 )
-
 fig.update_traces(marker=dict(size=10, color="#1f77b4"), selector=dict(mode='markers'))
 
-# Add green in-hand points and lines for the two known records
+# Add green in-hand points and lines
 known_indices = [16, 18, 24]
 known_inhand_serials = [46085, 46091, 46119]
 known_inhand_dates = [date(2026, 3, 4), date(2026, 3, 10), date(2026, 4, 7)]
-
 for i, idx in enumerate(known_indices):
     sub_ser = sub_serials[idx]
     fp_ser = fp_serials[idx]
     inhand_ser = known_inhand_serials[i]
-
     fig.add_trace(
         px.scatter(
             x=[sub_ser],
@@ -453,7 +407,6 @@ for i, idx in enumerate(known_indices):
             hover_data={"In-Hand Date": [known_inhand_dates[i]]}
         ).data[0].update(marker=dict(color="green", size=12, symbol="diamond"))
     )
-
     fig.add_shape(
         type="line",
         x0=sub_ser,
@@ -475,7 +428,6 @@ fig.update_yaxes(
     ticktext=chart_df["Fingerprint_Date"][::5].dt.strftime('%m/%d/%Y'),
     title="Fingerprint Call Date"
 )
-
 fig.update_layout(height=500, hovermode="closest", showlegend=False)
 
 st.plotly_chart(fig, use_container_width=True)
@@ -486,10 +438,9 @@ st.caption("Orange line = fitted linear regression. "
 # ====================== FEEDBACK ======================
 st.subheader("💬 Ideas or Suggestions?")
 feedback_text = st.text_area(
-    "Share any feature requests, improvements, bugs, or comments here:", 
+    "Share any feature requests, improvements, bugs, or comments here:",
     placeholder="E.g. 'Add best/worst case dates' or 'Make it look even nicer on mobile'"
 )
-
 can_feedback = True
 if st.session_state.last_feedback_time is not None:
     time_since = time.time() - st.session_state.last_feedback_time
@@ -501,14 +452,12 @@ if st.session_state.last_feedback_time is not None:
 if st.button("Send Feedback", disabled=not can_feedback):
     if feedback_text.strip():
         feedback_row = [
-            dt.now().strftime("%m/%d/%Y %H:%M:%S"),   # Timestamp
+            dt.now().strftime("%m/%d/%Y %H:%M:%S"),
             feedback_text.strip(),
-            dt.now().strftime("%m/%d/%Y %H:%M:%S")    # Submitted_At
+            dt.now().strftime("%m/%d/%Y %H:%M:%S")
         ]
-
         if GOOGLE_SHEETS_ENABLED:
             try:
-                # Open the "Feedback" tab
                 feedback_worksheet = sh.worksheet("Feedback")
                 feedback_worksheet.append_row(feedback_row, value_input_option="USER_ENTERED")
                 st.success("✅ Submitted successfully. Awaiting review by admin.")
@@ -516,7 +465,6 @@ if st.button("Send Feedback", disabled=not can_feedback):
                 st.error(f"Feedback upload failed: {e}")
         else:
             st.error("Google Sheets connection is not active. Please contact the admin.")
-
         st.session_state.last_feedback_time = time.time()
     else:
         st.warning("Please type something before sending.")
