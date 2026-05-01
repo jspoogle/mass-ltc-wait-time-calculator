@@ -260,7 +260,9 @@ with main_col:
         </div>
         """, unsafe_allow_html=True)
         
-        st.markdown("### Enter the date you submitted / paid for your application")
+        st.markdown("""
+        <div style="text-align: center;">
+            ("### Enter the date you submitted / paid for your application")
         
         # Centered date input
         col1, col2, col3 = st.columns([1, 2, 1])
