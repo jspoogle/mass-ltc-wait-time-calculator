@@ -247,122 +247,141 @@ with right_col:
     st.image(f"{ASSETS}border_right4.jpg", width='stretch')
     st.image(f"{ASSETS}border_right5.jpg", width='stretch')
 
+# ====================== MAIN PREDICTOR SECTION ======================
 with main_col:
     st.title("Boston LTC/FID Licensing Wait Time for Fingerprinting Appointment Calculator")
-    st.caption("**Boston-only right now** — wait times can vary a lot by city/town. "
-               "If you're in Milford, Concord, Worcester, or anywhere else in MA, "
-               "your estimate may be different. Select the city/town where you live below.")
-
-    col1, col2 = st.columns([3, 1])
-    with col1:
-        submission_date = st.date_input(
-            "Enter the date you submitted / paid for your application",
-            value=date(2025, 6, 20),
-            min_value=date(2024, 1, 1),
-            format="MM/DD/YYYY"
-        )
-
-    if submission_date:
-        submission_serial = (submission_date - BASE_DATE).days
-        predicted_serial = SLOPE * submission_serial + INTERCEPT
-        predicted_raw = BASE_DATE + timedelta(days=round(predicted_serial))
-        predicted_central = next_business_day(predicted_raw)
-        lower_date = add_business_days(predicted_central, -5)
-        upper_date = add_business_days(predicted_central, +5)
-        days_wait_central = (predicted_central - submission_date).days
-
-        st.header("📅 Your Estimated Fingerprint Call Date")
-        st.success(f"**{predicted_central.strftime('%A, %m/%d/%Y')}** (±5 business days)")
-        st.info(f"≈ **{days_wait_central} calendar days** after submission ({submission_date.strftime('%m/%d/%Y')}).\n"
-                f"**Likely range:** {lower_date.strftime('%m/%d/%Y')} to {upper_date.strftime('%m/%d/%Y')}\n"
-                f"(excluding weekends & federal holidays)")
-        if predicted_central != predicted_raw:
-            st.caption(f"Raw model estimate was {predicted_raw.strftime('%m/%d/%Y')} — adjusted forward to next business day.")
-        st.caption("This is an estimate based on historical trends. Actual times vary due to processing volume, staffing, etc.")
-
-    def get_approx_ip():
-        try:
-            if hasattr(st.context, "ip_address"):
-                ip = st.context.ip_address
-                if ip:
-                    return ip
-            headers = st.context.headers or {}
-            forwarded = headers.get("X-Forwarded-For", "unknown")
-            if forwarded != "unknown":
-                return forwarded.split(",")[0].strip()
-            return "unknown"
-        except Exception:
-            return "unknown"
     
-        # ====================== CONTRIBUTE YOUR DATA ======================
-    st.subheader("💡 Help Make This More Accurate")
-    st.write("Submit your own dates + city to improve the model (and help build calculators for other MA cities). "
-             "Limited to 1 submission every 10 minutes to prevent spam.")
-
-    approx_ip = "unknown"
-
-    can_contrib = True
-    if st.session_state.last_contrib_time is not None:
-        time_since = time.time() - st.session_state.last_contrib_time
-        if time_since < RATE_LIMIT_SECONDS:
-            remaining = int(RATE_LIMIT_SECONDS - time_since)
-            st.warning(f"Contribution cooldown: {remaining // 60} min {remaining % 60} sec left")
-            can_contrib = False
-
-    with st.form("contribute_form"):
-        col1, col2 = st.columns(2)
+    # === CLEAR MAIN CALCULATOR BOX ===
+    with st.container(border=True):
+        st.caption("**Boston-only right now** — wait times can vary a lot by city/town. "
+                   "If you're in Milford, Concord, Worcester, or anywhere else in MA, "
+                   "your estimate may be different.")
+        
+        col1, col2 = st.columns([3, 1])
         with col1:
-            user_sub = st.date_input("Your Submission / Paid Date *", key="user_sub", format="MM/DD/YYYY")
-        with col2:
-            user_fp = st.date_input("Your Actual Fingerprint Call Date *", key="user_fp", format="MM/DD/YYYY")
-
-        user_city = st.selectbox(
-            "Your City/Town in Massachusetts *",
-            options=["Select your city..."] + MA_CITIES,
-            index=0,
-            help="Required — this helps me build city-specific predictors later"
-        )
-
-        col3, col4 = st.columns([3, 1])
-        with col3:
-            user_licence_date = st.date_input(
-                "Licence in-hand Date *",
-                key="user_licence",
-                disabled=st.session_state.get("no_licence_yet", False),
+            submission_date = st.date_input(
+                "Enter the date you submitted / paid for your application",
+                value=date(2025, 6, 20),
+                min_value=date(2024, 1, 1),
                 format="MM/DD/YYYY"
             )
-        with col4:
-            no_licence_yet = st.checkbox("I have not received this yet", key="no_licence_yet")
+        
+        if submission_date:
+            submission_serial = (submission_date - BASE_DATE).days
+            predicted_serial = SLOPE * submission_serial + INTERCEPT
+            predicted_raw = BASE_DATE + timedelta(days=round(predicted_serial))
+            predicted_central = next_business_day(predicted_raw)
+            lower_date = add_business_days(predicted_central, -5)
+            upper_date = add_business_days(predicted_central, +5)
+            days_wait_central = (predicted_central - submission_date).days
 
-        submitted = st.form_submit_button("Submit My Data", disabled=not can_contrib)
+            st.header("📅 Your Estimated Fingerprint Call Date")
+            st.success(f"**{predicted_central.strftime('%A, %m/%d/%Y')}** (±5 business days)")
+            st.info(f"≈ **{days_wait_central} calendar days** after submission ({submission_date.strftime('%m/%d/%Y')}).\n"
+                    f"**Likely range:** {lower_date.strftime('%m/%d/%Y')} to {upper_date.strftime('%m/%d/%Y')}\n"
+                    f"(excluding weekends & federal holidays)")
+            if predicted_central != predicted_raw:
+                st.caption(f"Raw model estimate was {predicted_raw.strftime('%m/%d/%Y')} — adjusted forward to next business day.")
+            st.caption("This is an estimate based on historical trends. Actual times vary due to processing volume, staffing, etc.")
 
-        if submitted and can_contrib:
-            if not user_sub or not user_fp or user_city == "Select your city...":
-                st.error("Submission date, Fingerprint call date, and City are required.")
-            else:
-                licence_value = user_licence_date if not no_licence_yet else None
-                
-                # Convert dates to strings for Google Sheets
-                row = [
-                    user_city,
-                    str(user_sub),
-                    str(user_fp),
-                    str(licence_value) if licence_value else "",
-                    dt.now().strftime("%m/%d/%Y %H:%M:%S"),
-                    approx_ip,
-                    no_licence_yet
-                ]
+        def get_approx_ip():
+            try:
+                if hasattr(st.context, "ip_address"):
+                    ip = st.context.ip_address
+                    if ip:
+                        return ip
+                headers = st.context.headers or {}
+                forwarded = headers.get("X-Forwarded-For", "unknown")
+                if forwarded != "unknown":
+                    return forwarded.split(",")[0].strip()
+                return "unknown"
+            except Exception:
+                return "unknown"
+    
+   # ====================== SEPARATOR ======================
+    st.divider()
 
-                if GOOGLE_SHEETS_ENABLED:
-                    try:
-                        worksheet.append_row(row, value_input_option="USER_ENTERED")
-                        st.success("✅ Submitted successfully. Awaiting review by admin.")
-                    except Exception as e:
-                        st.error(f"Upload failed: {e}")
+    # ====================== DATA SUBMISSION SECTION ======================
+    st.subheader("💡 Help Make This More Accurate")
+    
+    with st.container(border=True):   # Makes the whole form visually separate
+        st.warning("""
+            **Important**: If you haven't been called or scheduled for fingerprinting yet, 
+            **please do not submit** your data until that happens.
+        """)
+        
+        st.write("Submit your own dates + city to improve the model (and help build calculators for other MA cities). "
+                 "Limited to 1 submission every 10 minutes to prevent spam.")
+    
+        # Rate limit warning
+        approx_ip = "unknown"
+        can_contrib = True
+        if st.session_state.last_contrib_time is not None:
+            time_since = time.time() - st.session_state.last_contrib_time
+            if time_since < RATE_LIMIT_SECONDS:
+                remaining = int(RATE_LIMIT_SECONDS - time_since)
+                st.warning(f"Contribution cooldown: {remaining // 60} min {remaining % 60} sec left")
+                can_contrib = False
+    
+        with st.form("contribute_form"):
+            col1, col2 = st.columns(2)
+            with col1:
+                user_sub = st.date_input("Your Submission / Paid Date *", key="user_sub", format="MM/DD/YYYY")
+            with col2:
+                user_fp = st.date_input(
+                    "Your Actual Fingerprint Call Date *", 
+                    key="user_fp", 
+                    format="MM/DD/YYYY",
+                    help="Only submit this after you have actually been called/scheduled for fingerprinting."
+                )
+            
+            user_city = st.selectbox(
+                "Your City/Town in Massachusetts *",
+                options=["Select your city..."] + MA_CITIES,
+                index=0,
+                help="Required — this helps me build city-specific predictors later"
+            )
+            
+            col3, col4 = st.columns([3, 1])
+            with col3:
+                user_licence_date = st.date_input(
+                    "Licence in-hand Date *",
+                    key="user_licence",
+                    disabled=st.session_state.get("no_licence_yet", False),
+                    format="MM/DD/YYYY"
+                )
+            with col4:
+                no_licence_yet = st.checkbox("I have not received this yet", key="no_licence_yet")
+            
+            submitted = st.form_submit_button("Submit My Data", disabled=not can_contrib)
+            
+            if submitted and can_contrib:
+                if not user_sub or not user_fp or user_city == "Select your city...":
+                    st.error("Submission date, Fingerprint call date, and City are required.")
                 else:
-                    st.error("Google Sheets connection is not active. Please contact the admin.")
-
-                st.session_state.last_contrib_time = time.time()
+                    licence_value = user_licence_date if not no_licence_yet else None
+                    
+                    # Convert dates to strings for Google Sheets
+                    row = [
+                        user_city,
+                        str(user_sub),
+                        str(user_fp),
+                        str(licence_value) if licence_value else "",
+                        dt.now().strftime("%m/%d/%Y %H:%M:%S"),
+                        approx_ip,
+                        no_licence_yet
+                    ]
+    
+                    if GOOGLE_SHEETS_ENABLED:
+                        try:
+                            worksheet.append_row(row, value_input_option="USER_ENTERED")
+                            st.success("✅ Submitted successfully. Awaiting review by admin.")
+                        except Exception as e:
+                            st.error(f"Upload failed: {e}")
+                    else:
+                        st.error("Google Sheets connection is not active. Please contact the admin.")
+    
+                    st.session_state.last_contrib_time = time.time()
 
 
 # Hardcoded historical data
