@@ -251,16 +251,22 @@ with right_col:
 with main_col:
     st.title("Boston LTC/FID Licensing Wait Time for Fingerprinting Appointment Calculator")
     
-    # === MAIN CALCULATOR BOX - MORE FOCUSED ===
     with st.container(border=True):
-        st.markdown("**Boston-only right now** — wait times vary by city/town.")
+        # Centered intro text
+        st.markdown("""
+        <div style="text-align: center;">
+            <strong>Boston-only right now</strong> — wait times vary a lot by city/town.<br>
+            If you're in Milford, Concord, Worcester, or anywhere else in MA, your estimate may be different.
+        </div>
+        """, unsafe_allow_html=True)
         
-        # Prominent date input
         st.markdown("### Enter the date you submitted / paid for your application")
-        col1, col2, col3 = st.columns([1, 3, 1])
+        
+        # Centered date input
+        col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
             submission_date = st.date_input(
-                label="",  # hidden label since we have markdown above
+                label="", 
                 value=date(2025, 6, 20),
                 min_value=date(2024, 1, 1),
                 format="MM/DD/YYYY",
