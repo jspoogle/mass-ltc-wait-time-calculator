@@ -64,7 +64,7 @@ MA_CITIES = [
     "North Reading", "Northampton", "Northborough", "Northbridge", "Norton", "Norfolk",
     "Norwood", "Oak Bluffs", "Orange", "Orleans", "Oxford", "Paxton", "Pembroke",
     "Pepperell", "Peru", "Petersham", "Phillipston", "Plainfield", "Plainville", "Plymouth",
-    "Princeton", "Provincetown", "Randolph", "Raynham", "Reading", "Rehoboth", "Revere",
+    "Princeton", "Provincetown", "Quincy", "Randolph", "Raynham", "Reading", "Rehoboth", "Revere",
     "Rockport", "Rockland", "Rowe", "Rowley", "Royalston", "Russell", "Rutland", "Salem",
     "Sandisfield", "Sandwich", "Saugus", "Savoy", "Scituate", "Seekonk", "Sharon",
     "Sheffield", "Shelburne", "Sherborn", "Shirley", "Shrewsbury", "Shutesbury", "Somerset",
