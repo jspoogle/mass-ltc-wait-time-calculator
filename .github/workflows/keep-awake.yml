@@ -2,17 +2,15 @@ name: Keep Mass LTC Calculator Awake
 
 on:
   schedule:
-    - cron: '0 */10 * * *'   # Runs every 10 hours
+    - cron: '*/30 * * * *'   # Runs every 30 minutes
 
 jobs:
   keep-awake:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Empty commit to prevent sleep
+      - name: Empty commit (no secrets involved)
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
