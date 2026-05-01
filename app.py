@@ -322,14 +322,13 @@ with main_col:
    # ====================== SEPARATOR ======================
     st.divider()
 
+    
     # ====================== DATA SUBMISSION SECTION ======================
     st.subheader("💡 Help Make This More Accurate")
     
-    with st.container(border=True):   # Makes the whole form visually separate
-        st.warning("""
-            **Important**: If you haven't been called or scheduled for fingerprinting yet, 
-            **please do not submit** your data until that happens.
-        """)
+    with st.container(border=True):
+        st.warning("**Important**: If you haven't been called or scheduled for fingerprinting yet, "
+                   "please **do not submit** your data until that happens.")
         
         st.write("Submit your own dates + city to improve the model (and help build calculators for other MA cities). "
                  "Limited to 1 submission every 10 minutes to prevent spam.")
