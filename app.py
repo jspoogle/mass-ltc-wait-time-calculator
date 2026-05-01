@@ -294,7 +294,7 @@ with main_col:
             st.markdown(f"<p style='text-align: center; font-size: 1.1em;'><strong>±5 business days</strong></p>", unsafe_allow_html=True)
 
             st.info(f"""
-                **{days_wait_central} calendar days** after submission ({submission_date.strftime('%m/%d/%Y')}).
+                About **{days_wait_central} calendar days** after submission ({submission_date.strftime('%m/%d/%Y')}).
 
                 **Likely range:** {lower_date.strftime('%m/%d/%Y')} to {upper_date.strftime('%m/%d/%Y')}
                 (excluding weekends & federal holidays)
