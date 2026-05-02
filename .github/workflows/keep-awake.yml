@@ -2,17 +2,18 @@ name: Keep Mass LTC Calculator Awake
 
 on:
   schedule:
-    - cron: '*/30 * * * *'   # Every 30 minutes
+    - cron: '0 */8 * * *'   # Every 8 hours (more reliable than 30 min)
 
 jobs:
   keep-awake:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04   # Use newer runner
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          ref: main
 
       - name: Empty commit to prevent sleep
         run: |
