@@ -246,7 +246,7 @@ with main_col:
         
         # Larger, prominent date prompt
         st.markdown("""
-        <div style="text-align: center; font-size: 1.35em; font-weight: 600;">
+        <div style="text-align: center; font-size: 1.35em; font-weight: 600; margin-bottom: 8px;">
             Enter the date you submitted / paid for your application
         </div>
         """, unsafe_allow_html=True)
