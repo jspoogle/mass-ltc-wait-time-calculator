@@ -239,15 +239,15 @@ with main_col:
         <div style="text-align: center;">
             <strong>Boston-only right now</strong> — wait times vary a lot by city/town.<br>
             If you're in Milford, Concord, Worcester, or anywhere else in MA, your estimate may be different.
+        
         </div>
         """, unsafe_allow_html=True)
         
         st.markdown("""
             <div style="text-align: center;">
-                ### Enter the date you submitted / paid for your application")
+                Enter the date you submitted / paid for your application")
         </div>
-        """, unsafe_allow_html=True)
-        
+        """, unsafe_allow_html=True) 
         # Centered date input
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
