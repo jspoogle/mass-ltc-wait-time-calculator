@@ -426,8 +426,8 @@ for i, idx in enumerate(known_indices):
 
 # Axis formatting
 fig.update_xaxes(
-    tickvals=chart_df["Submission_Serial"][::12],
-    ticktext=chart_df["Submission_Date"][::12].dt.strftime('%m/%d/%Y'),
+    tickvals=chart_df["Submission_Serial"][::2],
+    ticktext=chart_df["Submission_Date"][::2].dt.strftime('%m/%d/%Y'),
     title="Submission Date"
 )
 fig.update_yaxes(
