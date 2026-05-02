@@ -431,8 +431,8 @@ fig.update_xaxes(
     title="Submission Date"
 )
 fig.update_yaxes(
-    tickvals=chart_df["Fingerprint_Serial"][::5],
-    ticktext=chart_df["Fingerprint_Date"][::5].dt.strftime('%m/%d/%Y'),
+    tickvals=chart_df["Fingerprint_Serial"][::2],
+    ticktext=chart_df["Fingerprint_Date"][::2].dt.strftime('%m/%d/%Y'),
     title="Fingerprint Call Date"
 )
 fig.update_layout(height=500, hovermode="closest", showlegend=False)
